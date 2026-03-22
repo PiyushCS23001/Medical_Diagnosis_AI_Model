@@ -6,6 +6,25 @@ import plotly.graph_objects as go
 from datetime import datetime
 import base64
 
+st.set_page_config(
+    page_title="MediDiagnose AI - Medical Expert System",
+    page_icon="🏥",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# ===== PUT INITIALIZATION BLOCK HERE =====
+# Initialize all session state variables
+if 'current_page' not in st.session_state:
+    st.session_state.current_page = "diagnosis"
+if 'symptom_history' not in st.session_state:
+    st.session_state.symptom_history = []
+if 'diagnoses' not in st.session_state:
+    st.session_state.diagnoses = []
+if 'search_query' not in st.session_state:
+    st.session_state.search_query = ""
+# =========================================
+
 @st.cache_resource
 def load_expert_system():
     from medical_expert_system import MedicalExpertSystem
