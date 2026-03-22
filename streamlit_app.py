@@ -6,6 +6,15 @@ import plotly.graph_objects as go
 from datetime import datetime
 import base64
 
+@st.cache_resource
+def load_expert_system():
+    from medical_expert_system import MedicalExpertSystem
+    return MedicalExpertSystem()
+
+# Use cached version
+if 'expert_system' not in st.session_state:
+    st.session_state.expert_system = load_expert_system() 
+    
 # Page configuration
 st.set_page_config(
     page_title="MediDiagnose AI - Medical Expert System",
