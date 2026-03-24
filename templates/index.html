@@ -1,0 +1,1065 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MediDiagnose AI - Professional Medical Diagnosis System</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f8fafc;
+        color: #0f172a;
+      }
+
+      /* Header */
+      .header {
+        background: white;
+        padding: 1.2rem 2rem;
+        border-bottom: 1px solid #e2e8f0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .header-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .logo h1 {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 1.6rem;
+        font-weight: 800;
+      }
+
+      .logo p {
+        color: #64748b;
+        font-size: 0.8rem;
+        margin-top: 0.2rem;
+      }
+
+      /* Navigation */
+      .nav {
+        display: flex;
+        gap: 0.5rem;
+        background: #f1f5f9;
+        padding: 0.25rem;
+        border-radius: 12px;
+      }
+
+      .nav-btn {
+        padding: 0.5rem 1.2rem;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.3s;
+        color: #64748b;
+      }
+
+      .nav-btn.active {
+        background: white;
+        color: #3b82f6;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      /* Main Container */
+      .container {
+        max-width: 1400px;
+        margin: 1.5rem auto;
+        padding: 0 2rem;
+      }
+
+      /* Stats Cards */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1rem;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+      }
+
+      .stat-label {
+        font-size: 0.7rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.3rem;
+        font-weight: 500;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0f172a;
+      }
+
+      /* Two Column Layout */
+      .two-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+      }
+
+      /* Cards */
+      .card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.2rem;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 1.5rem;
+      }
+
+      .card h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #0f172a;
+      }
+
+      /* Symptom Search */
+      .search-box {
+        width: 100%;
+        padding: 0.6rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+      }
+
+      .search-box:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+
+      /* Categories */
+      .category {
+        margin-bottom: 1rem;
+      }
+
+      .category-title {
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 0.5rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .symptom-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 0.4rem;
+      }
+
+      .symptom-btn {
+        padding: 0.4rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: white;
+        cursor: pointer;
+        font-size: 0.7rem;
+        font-weight: 500;
+        color: #475569;
+        transition: all 0.2s;
+      }
+
+      .symptom-btn:hover {
+        background: #f8fafc;
+        border-color: #3b82f6;
+      }
+
+      .symptom-btn.selected {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: white;
+        border-color: transparent;
+      }
+
+      /* Selected Symptoms */
+      .selected-symptoms {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin: 0.8rem 0;
+        min-height: 45px;
+      }
+
+      .symptom-pill {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: white;
+        padding: 0.3rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .remove-symptom {
+        cursor: pointer;
+        font-weight: bold;
+        opacity: 0.8;
+      }
+
+      /* Results Layout */
+      .results-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+      }
+
+      /* Pie Chart Container */
+      .chart-section {
+        background: #fafcff;
+        border-radius: 16px;
+        padding: 1rem;
+        text-align: center;
+      }
+
+      .chart-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 0.8rem;
+      }
+
+      .pie-chart-wrapper {
+        position: relative;
+        width: 100%;
+        max-width: 260px;
+        margin: 0 auto;
+      }
+
+      canvas {
+        width: 100% !important;
+        height: auto !important;
+      }
+
+      /* Diagnosis List */
+      .diagnosis-list {
+        max-height: 380px;
+        overflow-y: auto;
+      }
+
+      .diagnosis-item {
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        margin-bottom: 0.6rem;
+        overflow: hidden;
+      }
+
+      .diagnosis-header {
+        padding: 0.7rem 0.8rem;
+        background: white;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .diagnosis-header:hover {
+        background: #fafcff;
+      }
+
+      .diagnosis-rank {
+        font-weight: 700;
+        color: #3b82f6;
+        width: 25px;
+        font-size: 0.8rem;
+      }
+
+      .diagnosis-name {
+        font-weight: 600;
+        flex: 1;
+        margin-left: 0.4rem;
+        font-size: 0.85rem;
+      }
+
+      .confidence-badge {
+        padding: 0.15rem 0.5rem;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 600;
+      }
+
+      .high {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+      .medium {
+        background: #fef3c7;
+        color: #d97706;
+      }
+      .low {
+        background: #dcfce7;
+        color: #16a34a;
+      }
+
+      .diagnosis-details {
+        padding: 0.8rem;
+        border-top: 1px solid #e2e8f0;
+        display: none;
+        background: #fafcff;
+        font-size: 0.75rem;
+        line-height: 1.4;
+      }
+
+      .diagnosis-details.show {
+        display: block;
+      }
+
+      /* Progress Bar */
+      .progress-bar {
+        width: 100%;
+        height: 3px;
+        background: #e2e8f0;
+        border-radius: 2px;
+        overflow: hidden;
+        margin: 0.4rem 0;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        transition: width 0.5s ease;
+      }
+
+      /* Action Buttons */
+      .actions {
+        display: flex;
+        gap: 0.8rem;
+        margin-top: 1rem;
+      }
+
+      .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      }
+
+      .btn-secondary {
+        background: #f1f5f9;
+        color: #475569;
+      }
+
+      /* Sticky Button */
+      .sticky-diagnose {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        z-index: 1000;
+      }
+
+      .btn-diagnose-sticky {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: white;
+        padding: 0.7rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 1.5rem;
+        color: #94a3b8;
+        font-size: 0.8rem;
+      }
+
+      /* Responsive */
+      @media (max-width: 968px) {
+        .two-column {
+          grid-template-columns: 1fr;
+        }
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .container {
+          padding: 0 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="header-content">
+        <div class="logo">
+          <h1>🏥 MediDiagnose AI</h1>
+          <p>
+            Advanced Medical Diagnosis Expert System | Forward Chaining Engine
+          </p>
+        </div>
+        <div class="nav">
+          <button class="nav-btn active" onclick="showPage('diagnosis')">
+            🔍 Diagnosis
+          </button>
+          <button class="nav-btn" onclick="showPage('history')">
+            📋 History
+          </button>
+          <button class="nav-btn" onclick="showPage('about')">ℹ️ About</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diagnosis Page -->
+    <div id="diagnosis-page">
+      <div class="container">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">DISEASES COVERED</div>
+            <div class="stat-value">29</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">SYMPTOMS DATABASE</div>
+            <div class="stat-value">52</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">SELECTED SYMPTOMS</div>
+            <div class="stat-value" id="selected-count">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">AI ENGINE</div>
+            <div class="stat-value" style="font-size: 0.9rem">
+              Forward Chain
+            </div>
+          </div>
+        </div>
+
+        <div class="two-column">
+          <!-- Left Column - Symptom Selector -->
+          <div>
+            <div class="card">
+              <h2>🔍 Select Your Symptoms</h2>
+              <input
+                type="text"
+                class="search-box"
+                id="search-symptom"
+                placeholder="Search symptoms..."
+                onkeyup="filterSymptoms()"
+              />
+              <div id="categories-container"></div>
+            </div>
+
+            <div class="card">
+              <h2>📋 Selected Symptoms</h2>
+              <div id="selected-symptoms" class="selected-symptoms"></div>
+              <button
+                class="btn btn-secondary"
+                onclick="clearAllSymptoms()"
+                style="width: 100%"
+              >
+                🗑️ Clear All
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Column - Results -->
+          <div>
+            <div class="card">
+              <h2>📊 Diagnosis Results</h2>
+              <div class="results-layout">
+                <!-- Interactive Pie Chart -->
+                <div class="chart-section">
+                  <div class="chart-title">Top Diagnosis Confidence</div>
+                  <div class="pie-chart-wrapper">
+                    <canvas id="pie-chart"></canvas>
+                  </div>
+                </div>
+
+                <!-- Diagnosis List -->
+                <div id="diagnosis-list" class="diagnosis-list">
+                  <div class="empty-state">
+                    Select symptoms and click "Analyze" to see results
+                  </div>
+                </div>
+
+                <div class="actions">
+                  <button class="btn btn-primary" onclick="performDiagnosis()">
+                    🔬 Analyze Symptoms
+                  </button>
+                  <button class="btn btn-secondary" onclick="resetDiagnosis()">
+                    🗑️ Reset
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sticky Diagnose Button -->
+      <div class="sticky-diagnose">
+        <button class="btn-diagnose-sticky" onclick="performDiagnosis()">
+          🔍 DIAGNOSE NOW
+        </button>
+      </div>
+    </div>
+
+    <!-- History Page -->
+    <div id="history-page" style="display: none">
+      <div class="container">
+        <div class="card">
+          <div
+            class="history-header"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 1rem;
+            "
+          >
+            <h2>📋 Diagnosis History</h2>
+            <button
+              class="btn btn-secondary"
+              onclick="clearHistory()"
+              style="background: #fee2e2; color: #dc2626"
+            >
+              🗑️ Clear All
+            </button>
+          </div>
+          <div id="history-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Page -->
+    <div id="about-page" style="display: none">
+      <div class="container">
+        <div class="card">
+          <h2>ℹ️ About MediDiagnose AI</h2>
+          <div
+            class="about-content"
+            style="line-height: 1.5; color: #475569; font-size: 0.85rem"
+          >
+            <p>
+              <strong>🎯 Purpose:</strong> Educational expert system
+              demonstrating rule-based medical diagnosis using forward chaining.
+            </p>
+            <p>
+              <strong>🔧 Technology:</strong> Flask, HTML5, CSS3, JavaScript,
+              Chart.js, Forward Chaining Algorithm
+            </p>
+            <p>
+              <strong>📊 Knowledge Base:</strong> 29+ Medical Conditions, 52+
+              Symptoms
+            </p>
+            <p>
+              <strong>⚕️ How Forward Chaining Works:</strong> Select symptoms →
+              System matches against IF-THEN rules → Rules fire → Confidence
+              scores calculated → Results ranked
+            </p>
+            <p>
+              <strong>⚠️ Disclaimer:</strong> For educational purposes only.
+              Always consult healthcare professionals.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // State management
+      let selectedSymptoms = [];
+      let diagnosisHistory = [];
+      let allSymptoms = [];
+      let pieChart = null;
+      let currentDiagnoses = [];
+
+      // Load symptoms
+      async function loadSymptoms() {
+        try {
+          const response = await fetch("/api/symptoms");
+          const data = await response.json();
+          allSymptoms = data.symptoms;
+          renderCategories();
+        } catch (error) {
+          console.error("Error loading symptoms:", error);
+        }
+      }
+
+      // Render categories
+      function renderCategories() {
+        const categories = {
+          GENERAL: [
+            "fever",
+            "fatigue",
+            "chills",
+            "night_sweats",
+            "weight_loss",
+            "weight_gain",
+          ],
+          RESPIRATORY: [
+            "cough",
+            "difficulty_breathing",
+            "shortness_breath",
+            "wheezing",
+            "sore_throat",
+          ],
+          PAIN: [
+            "headache",
+            "severe_headache",
+            "chest_pain",
+            "abdominal_pain",
+            "joint_pain",
+            "muscle_pain",
+            "flank_pain",
+          ],
+          NEUROLOGICAL: [
+            "dizziness",
+            "confusion",
+            "seizures",
+            "sensitivity_to_light",
+            "stiff_neck",
+          ],
+          GASTROINTESTINAL: [
+            "nausea",
+            "vomiting",
+            "diarrhea",
+            "heartburn",
+            "bloody_stool",
+            "yellow_skin",
+          ],
+          SKIN: [
+            "rash",
+            "red_rash",
+            "itchy_skin",
+            "dry_skin",
+            "hives",
+            "skin_lesions",
+          ],
+          URINARY: [
+            "burning_urination",
+            "frequent_urination",
+            "excessive_thirst",
+          ],
+          CARDIOVASCULAR: ["rapid_heartbeat"],
+          MENTAL: [
+            "sadness",
+            "anxiety",
+            "loss_of_interest",
+            "sleep_disturbance",
+          ],
+          OTHER: [
+            "swollen_lymph_nodes",
+            "red_eyes",
+            "cold_intolerance",
+            "sweating",
+          ],
+        };
+
+        const container = document.getElementById("categories-container");
+        container.innerHTML = "";
+
+        for (const [category, symptoms] of Object.entries(categories)) {
+          const categoryDiv = document.createElement("div");
+          categoryDiv.className = "category";
+          categoryDiv.innerHTML = `<div class="category-title">${category}</div><div class="symptom-grid" id="grid-${category}"></div>`;
+
+          const grid = categoryDiv.querySelector(`.symptom-grid`);
+          symptoms.forEach((symptom) => {
+            if (allSymptoms.includes(symptom)) {
+              const btn = document.createElement("button");
+              btn.className = "symptom-btn";
+              btn.textContent = symptom.replace("_", " ").toUpperCase();
+              btn.onclick = () => toggleSymptom(symptom);
+              grid.appendChild(btn);
+            }
+          });
+          container.appendChild(categoryDiv);
+        }
+      }
+
+      function filterSymptoms() {
+        const searchTerm = document
+          .getElementById("search-symptom")
+          .value.toLowerCase();
+        const allBtns = document.querySelectorAll(".symptom-btn");
+
+        allBtns.forEach((btn) => {
+          const text = btn.textContent.toLowerCase();
+          const parent = btn.closest(".category");
+          if (text.includes(searchTerm)) {
+            btn.style.display = "block";
+            if (parent) parent.style.display = "block";
+          } else {
+            btn.style.display = "none";
+          }
+        });
+      }
+
+      function toggleSymptom(symptom) {
+        const index = selectedSymptoms.indexOf(symptom);
+        if (index === -1) {
+          selectedSymptoms.push(symptom);
+        } else {
+          selectedSymptoms.splice(index, 1);
+        }
+        updateSelectedSymptomsDisplay();
+        updateSymptomButtons();
+        document.getElementById("selected-count").innerText =
+          selectedSymptoms.length;
+      }
+
+      function updateSelectedSymptomsDisplay() {
+        const container = document.getElementById("selected-symptoms");
+        if (selectedSymptoms.length === 0) {
+          container.innerHTML =
+            '<div style="color: #94a3b8; text-align: center; padding: 0.3rem;">No symptoms selected. Click on symptoms above to add.</div>';
+        } else {
+          container.innerHTML = selectedSymptoms
+            .map(
+              (symptom) => `
+                    <div class="symptom-pill">
+                        ${symptom.replace("_", " ").toUpperCase()}
+                        <span class="remove-symptom" onclick="toggleSymptom('${symptom}')">✕</span>
+                    </div>
+                `,
+            )
+            .join("");
+        }
+      }
+
+      function updateSymptomButtons() {
+        document.querySelectorAll(".symptom-btn").forEach((btn) => {
+          const symptom = btn.textContent.toLowerCase().replace(/\s/g, "_");
+          if (selectedSymptoms.includes(symptom)) {
+            btn.classList.add("selected");
+          } else {
+            btn.classList.remove("selected");
+          }
+        });
+      }
+
+      function clearAllSymptoms() {
+        selectedSymptoms = [];
+        updateSelectedSymptomsDisplay();
+        updateSymptomButtons();
+        document.getElementById("selected-count").innerText = "0";
+        resetDiagnosis();
+      }
+
+      async function performDiagnosis() {
+        if (selectedSymptoms.length === 0) {
+          alert("Please select at least one symptom");
+          return;
+        }
+
+        document.getElementById("diagnosis-list").innerHTML =
+          '<div class="empty-state">🔍 Analyzing symptoms with forward chaining...</div>';
+
+        try {
+          const response = await fetch("/api/diagnose", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ symptoms: selectedSymptoms }),
+          });
+          const data = await response.json();
+
+          if (data.success) {
+            currentDiagnoses = data.diagnoses;
+            displayDiagnosis(currentDiagnoses);
+            saveToHistory(currentDiagnoses);
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          document.getElementById("diagnosis-list").innerHTML =
+            '<div class="empty-state">❌ Error performing diagnosis. Please try again.</div>';
+        }
+      }
+
+      function displayDiagnosis(diagnoses) {
+        if (!diagnoses || diagnoses.length === 0) {
+          document.getElementById("diagnosis-list").innerHTML =
+            '<div class="empty-state">No matching diseases found. Try adding more symptoms.</div>';
+          updatePieChart([]);
+          return;
+        }
+
+        // Update pie chart with all diagnoses
+        updatePieChart(diagnoses.slice(0, 6));
+
+        // Display diagnosis list
+        const container = document.getElementById("diagnosis-list");
+        container.innerHTML = `
+                <div style="margin-bottom: 0.8rem; font-size: 0.75rem; color: #64748b;">📊 Found ${diagnoses.length} possible condition(s)</div>
+                ${diagnoses
+                  .slice(0, 8)
+                  .map(
+                    (d, i) => `
+                    <div class="diagnosis-item">
+                        <div class="diagnosis-header" onclick="toggleDetails(${i})">
+                            <div style="display: flex; align-items: center; flex: 1;">
+                                <span class="diagnosis-rank">${i + 1}</span>
+                                <span class="diagnosis-name">${d.name}</span>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <div class="progress-bar" style="width: 60px;">
+                                    <div class="progress-fill" style="width: ${d.confidence}%"></div>
+                                </div>
+                                <span class="confidence-badge ${getConfidenceClass(d.confidence)}">${d.confidence}%</span>
+                            </div>
+                        </div>
+                        <div class="diagnosis-details" id="details-${i}">
+                            <p><strong>📝 Explanation:</strong> ${d.explanation}</p>
+                            <p><strong>💊 Medication:</strong> ${d.medication}</p>
+                            <p><strong>✅ Matched:</strong> ${d.matched_symptoms.map((s) => s.replace("_", " ").toUpperCase()).join(", ")}</p>
+                        </div>
+                    </div>
+                `,
+                  )
+                  .join("")}
+            `;
+      }
+
+      function updatePieChart(diagnoses) {
+        if (pieChart) {
+          pieChart.destroy();
+        }
+
+        const ctx = document.getElementById("pie-chart").getContext("2d");
+
+        if (!diagnoses || diagnoses.length === 0) {
+          pieChart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+              labels: ["No Data"],
+              datasets: [
+                { data: [100], backgroundColor: ["#e2e8f0"], borderWidth: 0 },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: true,
+              plugins: {
+                legend: { position: "bottom", labels: { font: { size: 10 } } },
+              },
+              cutout: "65%",
+            },
+          });
+          return;
+        }
+
+        // Prepare data for top 5 diagnoses + "Others"
+        const topDiagnoses = diagnoses.slice(0, 5);
+        const remainingConfidence = diagnoses
+          .slice(5)
+          .reduce((sum, d) => sum + d.confidence, 0);
+
+        const labels = topDiagnoses.map(
+          (d) =>
+            `${d.name.split(" ").slice(0, 2).join(" ")} (${d.confidence}%)`,
+        );
+        const data = topDiagnoses.map((d) => d.confidence);
+
+        if (remainingConfidence > 0 && diagnoses.length > 5) {
+          labels.push(`Others (${Math.round(remainingConfidence)}%)`);
+          data.push(remainingConfidence);
+        }
+
+        const colors = [
+          "#3b82f6",
+          "#8b5cf6",
+          "#10b981",
+          "#f59e0b",
+          "#ef4444",
+          "#94a3b8",
+        ];
+
+        pieChart = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                data: data,
+                backgroundColor: colors.slice(0, labels.length),
+                borderWidth: 0,
+                hoverOffset: 8,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: {
+                  font: { size: 9, weight: "500" },
+                  padding: 8,
+                  boxWidth: 10,
+                },
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    return `${context.label}: ${context.raw}%`;
+                  },
+                },
+              },
+            },
+            cutout: "60%",
+            onClick: (event, activeElements) => {
+              if (activeElements.length > 0) {
+                const index = activeElements[0].index;
+                const diagnosis = diagnoses[index];
+                if (diagnosis && index < diagnoses.length) {
+                  // Find and highlight the diagnosis in the list
+                  const items = document.querySelectorAll(".diagnosis-item");
+                  if (items[index]) {
+                    items[index].scrollIntoView({
+                      behavior: "smooth",
+                      block: "center",
+                    });
+                    items[index].style.boxShadow = "0 0 0 2px #3b82f6";
+                    setTimeout(() => {
+                      items[index].style.boxShadow = "";
+                    }, 1000);
+                  }
+                }
+              }
+            },
+          },
+        });
+      }
+
+      function getConfidenceClass(confidence) {
+        if (confidence >= 70) return "high";
+        if (confidence >= 40) return "medium";
+        return "low";
+      }
+
+      function toggleDetails(index) {
+        const details = document.getElementById(`details-${index}`);
+        if (details) details.classList.toggle("show");
+      }
+
+      function saveToHistory(diagnoses) {
+        if (!diagnoses || diagnoses.length === 0) return;
+
+        const historyEntry = {
+          id: Date.now(),
+          timestamp: new Date().toLocaleString(),
+          symptoms: [...selectedSymptoms],
+          topDiagnosis: diagnoses[0]?.name || "None",
+          confidence: diagnoses[0]?.confidence || 0,
+          totalFound: diagnoses.length,
+        };
+        diagnosisHistory.unshift(historyEntry);
+        if (diagnosisHistory.length > 20) diagnosisHistory.pop();
+        localStorage.setItem(
+          "diagnosisHistory",
+          JSON.stringify(diagnosisHistory),
+        );
+      }
+
+      function loadHistory() {
+        const saved = localStorage.getItem("diagnosisHistory");
+        if (saved) diagnosisHistory = JSON.parse(saved);
+        displayHistory();
+      }
+
+      function displayHistory() {
+        const container = document.getElementById("history-list");
+        if (!diagnosisHistory || diagnosisHistory.length === 0) {
+          container.innerHTML =
+            '<div class="empty-state">No diagnosis history yet.</div>';
+          return;
+        }
+
+        container.innerHTML = diagnosisHistory
+          .map(
+            (entry) => `
+                <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.8rem; margin-bottom: 0.8rem;">
+                    <strong>🕐 ${entry.timestamp}</strong><br>
+                    <strong>Symptoms:</strong> ${entry.symptoms.map((s) => s.replace("_", " ").toUpperCase()).join(", ")}<br>
+                    <strong>Top Diagnosis:</strong> ${entry.topDiagnosis} (${entry.confidence}%)<br>
+                    <div class="progress-bar" style="margin-top: 0.4rem;"><div class="progress-fill" style="width: ${entry.confidence}%"></div></div>
+                </div>
+            `,
+          )
+          .join("");
+      }
+
+      function clearHistory() {
+        if (confirm("Clear all history?")) {
+          diagnosisHistory = [];
+          localStorage.removeItem("diagnosisHistory");
+          displayHistory();
+        }
+      }
+
+      function resetDiagnosis() {
+        document.getElementById("diagnosis-list").innerHTML =
+          '<div class="empty-state">Select symptoms and click "Analyze" to see results</div>';
+        updatePieChart([]);
+        currentDiagnoses = [];
+      }
+
+      function showPage(page) {
+        document.getElementById("diagnosis-page").style.display = "none";
+        document.getElementById("history-page").style.display = "none";
+        document.getElementById("about-page").style.display = "none";
+        document.getElementById(`${page}-page`).style.display = "block";
+        document
+          .querySelectorAll(".nav-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        event.target.classList.add("active");
+        if (page === "history") loadHistory();
+      }
+
+      // Initialize
+      loadSymptoms();
+      loadHistory();
+      resetDiagnosis();
+    </script>
+  </body>
+</html>
